@@ -63,9 +63,45 @@ Secondary indexes may hold multiple entries for a single search value.
 
 Things to consider in stotage engines:
 
-- Buffering
+- Buffering  
 Whether or not the storage structure collects a certain amount of data in memory before putting it on disk.
-- Immutability
+- Immutability  
 Whether or not storage can modify data files. Immutable structures may be append-only (write modifications at the end of the file), copy-on-write (write updated records to the new location), i.e.
-- Ordering
+- Ordering  
 Whether or not the data records are stored in the key order in the pages on disk. Alternative is to store records in the order of insertion.
+
+## B-Tree Basics
+
+Most of the mutable storages update records in-place.
+
+For now we assume that at most one record corresponds for each key (this is not the case for some storage engines).
+
+B-Tree is one of the most popular storage structures. Intorduced back in 1971.
+
+### Binary Search Tree (BTS)
+
+We need to rotate the tree after each operation in order to keep it balanced, otherwise the worst-case complexity goes up to O(N).
+Maintaining BTS on disk faces several problems:
+
+- Locality  
+Close nodes may be stored on different disk pages. This can be improved by modifying the tree layout and using paged binary trees.
+- Tree height  
+Low fanout leeds to up to O(log N) amount of seeks to locate the searched element.
+
+### Disk-Based Structures
+
+Many algorithms have been designed to work excel on hard disk drives, where seek operation is an expansive operation and reading/writing consecutive bytes after that is relativily cheap.
+
+Solid state drives do not have moving parts. The strurcture is following:
+
+ Die -> Plane -> Block -> Page -> Array -> String -> Memory cell
+
+ The smallest read/write block is page. Before writing page needs to be emptied, but we can only erase multiple pages at a time, this is called **erase block**.
+
+ Flash translation layer is responsible for mapping page ids to their physical locations and tracking empty/writter/discarded pages. It is also responsible for garbage collection.
+
+ Most operation systems have a block device abstractiion layer.
+
+ In SSD random I/O does not have that much overhead compared to HDD.
+
+ On disk, most of the time we manage the data layout manually. Creating long dependency chains in on-disk structures greatly increases code and structure complexity.
